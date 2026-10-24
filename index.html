@@ -257,7 +257,8 @@ main { max-width: 1180px; margin: 0 auto; padding: 10px 24px 70px; }
 }
 .card h3 { margin: 0 0 14px; font-size: 16px; letter-spacing: -0.01em; }
 .chart-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; margin-top: 18px; }
-.chart { width: 100%; height: 300px; }
+.chart { width: 100%; height: 360px; }
+.chart-sub { margin: -8px 0 8px; font-size: 11px; color: var(--muted); }
 
 /* ---------- season layout ---------- */
 .season-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 18px; align-items: start; }
@@ -597,6 +598,7 @@ tbody tr:last-child td { border-bottom: 0; }
   .topnav a { white-space: nowrap; }
   .podium { grid-template-columns: 1fr; }
   .chart { height: 260px; }
+  .chart-sub { margin-top: -6px; }
   .theme-toggle-label { display: none; }
 }
 
@@ -680,8 +682,9 @@ tbody tr:last-child td { border-bottom: 0; }
     <div id="champion-timeline" class="timeline"></div>
     <div class="chart-grid">
       <div class="card chart-card">
-        <h3>冠军次数</h3>
-        <div id="champions-chart" class="chart"></div>
+        <h3>球队四强次数</h3>
+        <p class="chart-sub">冠军 / 亚军 / 四强（3–4名），按总次数排序</p>
+        <div id="top-four-chart" class="chart"></div>
       </div>
       <div class="card chart-card">
         <h3>每季参赛队数</h3>
@@ -822,7 +825,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
   };
 
   const THEME_KEY = "season-report-theme";
-  let championChart = null;
+  let topFourChart = null;
   let participationChart = null;
   let chartsResizeBound = false;
 
@@ -1052,7 +1055,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       ${groupTabs}
       <div class="table-wrap">
         <table>
-          <thead><tr><th>名次</th><th>球队</th><th>赛</th><th>胜</th><th>负</th><th>平</th><th>积分</th><th>安打率</th><th>上垒率</th><th>备注</th></tr></thead>
+          <thead><tr><th>名次</th><th>球队</th><th class="num">赛</th><th class="num">胜</th><th class="num">负</th><th class="num">平</th><th class="num">积分</th><th class="num">安打率</th><th class="num">上垒率</th><th>备注</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -1104,7 +1107,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>阶段</th><th>日期</th><th>对阵</th><th>比分</th><th>胜者</th><th>备注 / 来源</th></tr></thead>
+          <thead><tr><th>阶段</th><th>日期</th><th>对阵</th><th class="num">比分</th><th>胜者</th><th>备注 / 来源</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="6" class="empty">没有符合条件的比赛</td></tr>'}</tbody>
         </table>
       </div>
@@ -1230,7 +1233,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     container.innerHTML = `
       <div class="table-wrap">
         <table class="team-table">
-          <thead><tr><th>球队</th><th>参赛赛季</th><th>冠军</th><th>亚军</th><th title="只显示四强（1–4名）；四强外显示 —">最好名次</th><th>赛季名次</th></tr></thead>
+          <thead><tr><th>球队</th><th class="num">参赛赛季</th><th class="num">冠军</th><th class="num">亚军</th><th class="num" title="只显示四强（1–4名）；四强外显示 —">最好名次</th><th>赛季名次</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -1308,6 +1311,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
         tooltipBorder: "#334155",
         tooltipText: "#e5e9f0",
         gold: "#e2b94b",
+        silver: "#aab4c2",
         blue: "#79b4f2",
         area: "rgba(121, 180, 242, 0.16)",
         label: "#e5e9f0",
@@ -1321,6 +1325,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       tooltipBorder: "#e5dfd2",
       tooltipText: "#172033",
       gold: "#c9a227",
+      silver: "#9aa3ad",
       blue: "#245b9e",
       area: "rgba(36, 91, 158, 0.10)",
       label: "#0b1f3a",
@@ -1332,47 +1337,95 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       $$(".chart").forEach((el) => { el.innerHTML = '<div class="empty">图表库未加载</div>'; });
       return;
     }
-    if (championChart) {
-      championChart.dispose();
-      championChart = null;
+    if (topFourChart) {
+      topFourChart.dispose();
+      topFourChart = null;
     }
     if (participationChart) {
       participationChart.dispose();
       participationChart = null;
     }
     const palette = chartPalette();
-    const champions = data.teams
-      .filter((team) => team.championships > 0)
-      .sort((a, b) => b.championships - a.championships);
-    championChart = echarts.init($("#champions-chart"));
-    championChart.setOption({
+    const teamOrder = new Map(data.teams.map((team, index) => [team.canonical, index]));
+    const topFourTeams = data.teams
+      .map((team) => {
+        const ranks = Object.values(team.final_ranks || {}).map(Number);
+        const champion = ranks.filter((rank) => rank === 1).length;
+        const runnerUp = ranks.filter((rank) => rank === 2).length;
+        const finalFour = ranks.filter((rank) => rank === 3 || rank === 4).length;
+        return { name: team.canonical, champion, runnerUp, finalFour, total: champion + runnerUp + finalFour };
+      })
+      .filter((team) => team.total > 0)
+      .sort((a, b) => b.total - a.total || b.champion - a.champion || b.runnerUp - a.runnerUp || teamOrder.get(a.name) - teamOrder.get(b.name));
+    topFourChart = echarts.init($("#top-four-chart"));
+    topFourChart.setOption({
       backgroundColor: "transparent",
-      grid: { left: 30, right: 20, top: 20, bottom: 60 },
+      grid: { left: 96, right: 28, top: 38, bottom: 26 },
+      legend: {
+        top: 0,
+        left: 0,
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { color: palette.axisText, fontSize: 11 },
+        data: ["冠军", "亚军", "四强"],
+      },
       tooltip: {
         trigger: "axis",
+        axisPointer: { type: "shadow" },
         backgroundColor: palette.tooltipBg,
         borderColor: palette.tooltipBorder,
         textStyle: { color: palette.tooltipText },
+        formatter: (params) => {
+          if (!params || !params.length) return "";
+          const items = params.map((item) => `${item.marker}${item.seriesName}：${item.value}`).join("<br>");
+          const total = params.reduce((sum, item) => sum + Number(item.value || 0), 0);
+          return `${params[0].axisValue}<br>${items}<br><b>合计：${total}</b>`;
+        },
       },
       xAxis: {
-        type: "category",
-        data: champions.map((team) => team.canonical),
-        axisLabel: { interval: 0, rotate: 25, color: palette.axisText, fontSize: 11 },
-        axisLine: { lineStyle: { color: palette.axisLine } },
-      },
-      yAxis: {
         type: "value",
         minInterval: 1,
-        axisLabel: { color: palette.axisText },
+        axisLabel: { color: palette.axisText, fontSize: 11 },
+        axisLine: { lineStyle: { color: palette.axisLine } },
         splitLine: { lineStyle: { color: palette.splitLine } },
       },
-      series: [{
-        type: "bar",
-        data: champions.map((team) => team.championships),
-        barWidth: "42%",
-        itemStyle: { color: palette.gold, borderRadius: [5, 5, 0, 0] },
-        label: { show: true, position: "top", color: palette.label, fontWeight: 700 },
-      }],
+      yAxis: {
+        type: "category",
+        inverse: true,
+        data: topFourTeams.map((team) => team.name),
+        axisLabel: { color: palette.axisText, fontSize: 11 },
+        axisLine: { lineStyle: { color: palette.axisLine } },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          name: "冠军",
+          type: "bar",
+          stack: "total",
+          barWidth: 9,
+          data: topFourTeams.map((team) => team.champion),
+          itemStyle: { color: palette.gold, borderRadius: [4, 0, 0, 4] },
+          emphasis: { focus: "series" },
+        },
+        {
+          name: "亚军",
+          type: "bar",
+          stack: "total",
+          barWidth: 9,
+          data: topFourTeams.map((team) => team.runnerUp),
+          itemStyle: { color: palette.silver },
+          emphasis: { focus: "series" },
+        },
+        {
+          name: "四强",
+          type: "bar",
+          stack: "total",
+          barWidth: 9,
+          data: topFourTeams.map((team) => team.finalFour),
+          itemStyle: { color: palette.blue, borderRadius: [0, 4, 4, 0] },
+          emphasis: { focus: "series" },
+        },
+      ],
     });
 
     participationChart = echarts.init($("#participation-chart"));
@@ -1411,7 +1464,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     if (!chartsResizeBound) {
       chartsResizeBound = true;
       window.addEventListener("resize", () => {
-        if (championChart) championChart.resize();
+        if (topFourChart) topFourChart.resize();
         if (participationChart) participationChart.resize();
       });
     }

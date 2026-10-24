@@ -555,6 +555,9 @@ tbody tr:last-child td { border-bottom: 0; }
 :root[data-theme="dark"] tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.025); }
 :root[data-theme="dark"] tbody tr:hover td { background: #1a2637; }
 :root[data-theme="dark"] .rank-badge { background: #1c2a3d; color: #c4cfdf; }
+:root[data-theme="dark"] .rank-badge.gold { background: #c9a227; color: #fff; }
+:root[data-theme="dark"] .rank-badge.silver { background: #9aa3ad; color: #fff; }
+:root[data-theme="dark"] .rank-badge.bronze { background: #a86b3c; color: #fff; }
 :root[data-theme="dark"] .rank-badge.four { background: #1b3048; color: var(--blue); }
 :root[data-theme="dark"] .tag-four { background: #1b3048; color: var(--blue); }
 :root[data-theme="dark"] .conf { background: #1c2636; color: var(--muted); }
@@ -569,6 +572,9 @@ tbody tr:last-child td { border-bottom: 0; }
 :root[data-theme="dark"] .matrix td:first-child { background: #162235; }
 :root[data-theme="dark"] .matrix thead th { background: #1a283b; }
 :root[data-theme="dark"] .cell-rank { background: #1c2a3d; color: #c4cfdf; }
+:root[data-theme="dark"] .cell-rank.r1 { background: #c9a227; color: #fff; }
+:root[data-theme="dark"] .cell-rank.r2 { background: #9aa3ad; color: #fff; }
+:root[data-theme="dark"] .cell-rank.r3 { background: #a86b3c; color: #fff; }
 :root[data-theme="dark"] .cell-rank.r-four,
 :root[data-theme="dark"] .cell-rank.r-top { background: #1b3048; color: var(--blue); }
 :root[data-theme="dark"] .cell-rank.r-mid { background: #1c2a3d; color: #c4cfdf; }
@@ -577,6 +583,13 @@ tbody tr:last-child td { border-bottom: 0; }
 :root[data-theme="dark"] .club-line { background: #3a3016; color: var(--gold); }
 :root[data-theme="dark"] .sort-btn[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #101827; }
 :root[data-theme="dark"] .medal.none { background: #5d6a7c; }
+:root[data-theme="dark"] .medal { background: #9aa3ad; color: #fff; }
+:root[data-theme="dark"] .gold .medal { background: #c9a227; }
+:root[data-theme="dark"] .bronze .medal { background: #a86b3c; }
+:root[data-theme="dark"] .four .medal { background: var(--blue); }
+:root[data-theme="dark"] .podium-card.gold::before { background: #c9a227; }
+:root[data-theme="dark"] .podium-card.silver::before { background: #9aa3ad; }
+:root[data-theme="dark"] .podium-card.bronze::before { background: #a86b3c; }
 :root[data-theme="dark"] .timeline-card:hover { box-shadow: 0 18px 42px rgba(0, 0, 0, 0.4); }
 :root[data-theme="dark"] .award-card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
 :root[data-theme="dark"] .report-footer { background: #08111f; color: rgba(255, 255, 255, 0.6); }

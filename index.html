@@ -466,6 +466,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .sort-reset[hidden] { display: none; }
 .matrix-wrap { max-height: 620px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
 .matrix { border-collapse: separate; border-spacing: 0; min-width: 940px; }
+.matrix-mobile-hint { display: none; }
 .matrix th, .matrix td { border-bottom: 1px solid #eee8dc; border-right: 1px solid #f1ebdf; padding: 7px 8px; text-align: center; vertical-align: middle; }
 .matrix th:first-child, .matrix td:first-child { position: sticky; left: 0; background: #f8f4ea; text-align: left; z-index: 2; min-width: 120px; }
 .matrix thead th { position: sticky; top: 0; background: #f3ede1; z-index: 3; }
@@ -624,6 +625,12 @@ tbody tr:last-child td { border-bottom: 0; }
 
   /* 球队 × 赛季：手机上压缩成一屏可见的 10 列矩阵，不再横向滑动 */
   .matrix-card { padding: 14px 10px; }
+  .matrix-mobile-hint {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 10px;
+    color: var(--muted);
+  }
   .matrix-wrap {
     max-height: none;
     overflow: hidden;
@@ -669,7 +676,7 @@ tbody tr:last-child td { border-bottom: 0; }
     display: block;
     font-size: 7px;
     line-height: 1.1;
-    color: var(--muted-2);
+    color: var(--muted);
   }
   .matrix .team-name { font-size: 9.5px; }
   .matrix .alias-line { display: none; }
@@ -1295,6 +1302,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       return `<tr><td>${teamName(team.canonical)}${clubLine(team)}${team.aliases && team.aliases.length ? `<span class="alias-line">${esc(team.aliases.join(" / "))}</span>` : ""}</td>${cells}</tr>`;
     }).join("");
     container.innerHTML = `
+      <div class="matrix-mobile-hint">表头：16 = 2016，S1 = 第一季</div>
       <div class="matrix-wrap">
         <table class="matrix">
           ${colgroup}

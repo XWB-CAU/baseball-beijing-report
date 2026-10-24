@@ -70,7 +70,11 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
@@ -467,6 +471,10 @@ tbody tr:last-child td { border-bottom: 0; }
 .matrix thead th { position: sticky; top: 0; background: #f3ede1; z-index: 3; }
 .matrix thead th:first-child { z-index: 4; }
 .matrix .season-col { font-size: 11px; color: var(--muted); }
+.matrix .season-year-full,
+.matrix .season-label { display: block; }
+.matrix .season-year-short,
+.matrix .season-index { display: none; }
 .cell-rank { display: inline-grid; place-items: center; min-width: 30px; height: 26px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 800; background: #f0eadf; color: #596273; vertical-align: middle; }
 .cell-rank.r1 { background: var(--gold); color: #fff; }
 .cell-rank.r2 { background: var(--silver); color: #fff; }
@@ -613,6 +621,74 @@ tbody tr:last-child td { border-bottom: 0; }
   .chart { height: 260px; }
   .chart-sub { margin-top: -6px; }
   .theme-toggle-label { display: none; }
+
+  /* 球队 × 赛季：手机上压缩成一屏可见的 10 列矩阵，不再横向滑动 */
+  .matrix-card { padding: 14px 10px; }
+  .matrix-wrap {
+    max-height: none;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  .matrix {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    font-size: 10px;
+  }
+  .matrix .col-team { width: 25%; }
+  .matrix .col-season { width: 7.5%; }
+  .matrix th,
+  .matrix td {
+    padding: 3px 1px;
+    font-size: 9px;
+  }
+  .matrix th:first-child,
+  .matrix td:first-child {
+    position: static;
+    min-width: 0;
+    padding-left: 4px;
+    padding-right: 2px;
+    line-height: 1.2;
+  }
+  .matrix thead th,
+  .matrix thead th.season-col {
+    position: static;
+    padding: 4px 1px;
+    font-size: 8px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .matrix .season-year-full,
+  .matrix .season-label { display: none; }
+  .matrix .season-year-short {
+    display: block;
+    font-size: 9px;
+    line-height: 1.1;
+  }
+  .matrix .season-index {
+    display: block;
+    font-size: 7px;
+    line-height: 1.1;
+    color: var(--muted-2);
+  }
+  .matrix .team-name { font-size: 9.5px; }
+  .matrix .alias-line { display: none; }
+  .matrix .club-line {
+    margin-top: 1px;
+    padding: 0 3px;
+    font-size: 7px;
+    line-height: 1.4;
+  }
+  .matrix .cell-rank {
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 9px;
+  }
+  .matrix .absent-mark { width: 9px; height: 9px; }
+  .matrix .cell-empty { font-size: 9px; }
 }
 
 @media print {
@@ -724,7 +800,7 @@ tbody tr:last-child td { border-bottom: 0; }
       <h2>球队历史</h2>
       <p>跨赛季参赛与四强成绩矩阵、冠军次数与球队别名。矩阵列出全部球队，单元格只显示最终四强及以上成绩（第1–4名）；— 表示参赛但未进四强，细 × 格表示该赛季未参赛（2018 仅统计甲级）。</p>
     </div>
-    <div class="card table-card" style="margin-bottom:16px;">
+    <div class="card table-card matrix-card" style="margin-bottom:16px;">
       <h3>球队 × 赛季</h3>
       <div id="team-matrix"></div>
     </div>
@@ -1186,7 +1262,16 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       container.innerHTML = '<div class="empty">暂无球队数据。</div>';
       return;
     }
-    const header = seasons.map((season) => `<th class="season-col">${esc(season.year)}<br>${esc(season.label)}</th>`).join("");
+    const header = seasons.map((season) => {
+      const shortYear = String(season.year).slice(-2);
+      return `<th class="season-col" title="${esc(season.year)} ${esc(season.label)}">
+        <span class="season-year-full">${esc(season.year)}</span>
+        <span class="season-year-short">${esc(shortYear)}</span>
+        <span class="season-label">${esc(season.label)}</span>
+        <span class="season-index">${esc(season.id)}</span>
+      </th>`;
+    }).join("");
+    const colgroup = `<colgroup><col class="col-team">${seasons.map(() => '<col class="col-season">').join("")}</colgroup>`;
     const rows = teams.map((team) => {
       const cells = seasons.map((season) => {
         const finalRank = team.final_ranks ? team.final_ranks[season.id] : null;
@@ -1195,20 +1280,24 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
           const finalFour = Boolean(bySeason && bySeason.final_four);
           const cls = finalFour ? "r-four" : finalRank === 1 ? "r1" : finalRank === 2 ? "r2" : finalRank === 3 ? "r3" : "r-top";
           const rankLabel = finalFour ? "四强" : `最终第${finalRank}名`;
-          return `<td title="${esc(season.year)} ${esc(season.label)} ${rankLabel}">
+          const cellLabel = `${season.year} ${season.label} ${rankLabel}`;
+          return `<td class="season-cell" title="${esc(cellLabel)}" aria-label="${esc(cellLabel)}">
             <span class="cell-rank ${cls}">${esc(finalFour ? 4 : finalRank)}</span>
           </td>`;
         }
         if (bySeason) {
-          return `<td class="cell-empty" title="${esc(season.year)} ${esc(season.label)} 参赛但未进四强">—</td>`;
+          const cellLabel = `${season.year} ${season.label} 参赛但未进四强`;
+          return `<td class="season-cell cell-empty" title="${esc(cellLabel)}" aria-label="${esc(cellLabel)}">—</td>`;
         }
-        return `<td class="cell-absent" title="${esc(season.year)} ${esc(season.label)} 未参赛" aria-label="${esc(season.year)} ${esc(season.label)} 未参赛"><svg class="absent-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1.8 1.8 10.2 10.2M10.2 1.8 1.8 10.2"></path></svg></td>`;
+        const cellLabel = `${season.year} ${season.label} 未参赛`;
+        return `<td class="season-cell cell-absent" title="${esc(cellLabel)}" aria-label="${esc(cellLabel)}"><svg class="absent-mark" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M1.8 1.8 10.2 10.2M10.2 1.8 1.8 10.2"></path></svg></td>`;
       }).join("");
       return `<tr><td>${teamName(team.canonical)}${clubLine(team)}${team.aliases && team.aliases.length ? `<span class="alias-line">${esc(team.aliases.join(" / "))}</span>` : ""}</td>${cells}</tr>`;
     }).join("");
     container.innerHTML = `
       <div class="matrix-wrap">
         <table class="matrix">
+          ${colgroup}
           <thead><tr><th>球队</th>${header}</tr></thead>
           <tbody>${rows}</tbody>
         </table>
@@ -1345,6 +1434,27 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     };
   }
 
+  function stackedBarData(teams, key) {
+    const keys = ["champion", "runnerUp", "finalFour"];
+    const index = keys.indexOf(key);
+    return teams.map((team) => {
+      const nonZero = keys
+        .map((name, i) => (Number(team[name]) > 0 ? i : -1))
+        .filter((i) => i >= 0);
+      const first = nonZero.length ? nonZero[0] : -1;
+      const last = nonZero.length ? nonZero[nonZero.length - 1] : -1;
+      const left = index === first;
+      const right = index === last;
+      return {
+        value: team[key],
+        itemStyle: {
+          // [左上, 右上, 右下, 左下]：只给整条堆叠柱的外端加圆角
+          borderRadius: [left ? 4 : 0, right ? 4 : 0, right ? 4 : 0, left ? 4 : 0],
+        },
+      };
+    });
+  }
+
   function renderCharts() {
     if (!window.echarts) {
       $$(".chart").forEach((el) => { el.innerHTML = '<div class="empty">图表库未加载</div>'; });
@@ -1416,8 +1526,8 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
           type: "bar",
           stack: "total",
           barWidth: 9,
-          data: topFourTeams.map((team) => team.champion),
-          itemStyle: { color: palette.gold, borderRadius: [4, 0, 0, 4] },
+          data: stackedBarData(topFourTeams, "champion"),
+          itemStyle: { color: palette.gold },
           emphasis: { focus: "series" },
         },
         {
@@ -1425,7 +1535,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
           type: "bar",
           stack: "total",
           barWidth: 9,
-          data: topFourTeams.map((team) => team.runnerUp),
+          data: stackedBarData(topFourTeams, "runnerUp"),
           itemStyle: { color: palette.silver },
           emphasis: { focus: "series" },
         },
@@ -1434,8 +1544,8 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
           type: "bar",
           stack: "total",
           barWidth: 9,
-          data: topFourTeams.map((team) => team.finalFour),
-          itemStyle: { color: palette.blue, borderRadius: [0, 4, 4, 0] },
+          data: stackedBarData(topFourTeams, "finalFour"),
+          itemStyle: { color: palette.blue },
           emphasis: { focus: "series" },
         },
       ],

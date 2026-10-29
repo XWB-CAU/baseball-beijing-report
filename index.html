@@ -519,6 +519,8 @@ tbody tr:last-child td { border-bottom: 0; }
   white-space: nowrap;
 }
 .rank-list { color: var(--muted); font-size: 11px; }
+.team-mobile-list,
+.team-mobile-hint { display: none; }
 
 /* ---------- sources ---------- */
 .source-table td { font-size: 12px; }
@@ -613,15 +615,121 @@ tbody tr:last-child td { border-bottom: 0; }
   .season-item .chev { display: none; }
 }
 @media (max-width: 680px) {
-  .hero { padding: 40px 18px 34px; }
-  .kpis { grid-template-columns: 1fr 1fr; }
-  main { padding: 0 16px 50px; }
-  .topnav { overflow-x: auto; padding: 8px 16px; }
-  .topnav a { white-space: nowrap; }
-  .podium { grid-template-columns: 1fr; }
-  .chart { height: 260px; }
+  .hero { padding: 30px 16px 26px; }
+  .eyebrow { font-size: 10px; letter-spacing: 0.14em; }
+  .hero h1 { margin: 12px 0 8px; font-size: clamp(28px, 8vw, 32px); }
+  .hero-sub { font-size: 13px; }
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-top: 18px; }
+  .kpi { padding: 9px 7px; border-radius: 10px; text-align: center; }
+  .kpi strong { font-size: 20px; }
+  .kpi span { font-size: 9px; letter-spacing: 0.02em; }
+  main { padding: 0 12px 40px; }
+  .section { padding: 30px 0 10px; }
+  .section-head { gap: 8px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 22px; }
+  .section-head p { font-size: 12px; line-height: 1.55; }
+  .card { padding: 14px; border-radius: 12px; }
+  .card h3 { font-size: 15px; margin-bottom: 10px; }
+  .topnav { gap: 2px; padding: 6px 10px; overflow: visible; }
+  .topnav a { padding: 6px 7px; font-size: 12px; white-space: nowrap; }
+  .topnav button { padding: 6px 8px; }
+  .topnav .spacer { display: none; }
+  .theme-toggle { margin-left: auto; }
+  #download-json { display: none; }
+  .podium { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0 14px; }
+  .podium-card { min-height: 0; padding: 9px 8px 8px; border-radius: 10px; }
+  .podium-label { font-size: 9px; letter-spacing: 0.08em; }
+  .podium-team { font-size: clamp(12px, 3.4vw, 14px); margin-top: 4px; line-height: 1.3; }
+  .podium-note { font-size: 9px; margin-top: 2px; line-height: 1.3; }
+  .medal { width: 18px; height: 18px; right: 6px; top: 6px; font-size: 8px; }
+  .chart { height: 240px; }
   .chart-sub { margin-top: -6px; }
   .theme-toggle-label { display: none; }
+
+  /* 手机端赛季选择：两列网格，避免横向滑动 */
+  .season-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+  .season-item { min-width: 0; padding: 8px 9px; gap: 8px; }
+  .season-item-year { min-width: 28px; font-size: 11px; }
+  .season-item strong { font-size: 12px; }
+  .season-item small { font-size: 10px; }
+
+  /* 手机端冠军时间线：两列紧凑卡片 */
+  .timeline {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-columns: auto;
+    gap: 8px;
+    overflow: visible;
+    padding: 2px 0 4px;
+    scroll-snap-type: none;
+  }
+  .timeline-card { min-width: 0; padding: 10px 10px 9px; border-radius: 10px; border-top-width: 3px; }
+  .timeline-card:hover { transform: none; }
+  .timeline-year { font-size: 9px; letter-spacing: 0.08em; }
+  .timeline-label { font-size: 10px; margin-top: 0; }
+  .timeline-champion { font-size: 15px; margin-top: 6px; }
+  .timeline-sub { font-size: 10px; margin-top: 2px; line-height: 1.35; }
+
+  /* 手机端球队汇总：可展开精简列表 */
+  .team-table-wrap { display: none; }
+  .team-mobile-list { display: grid; gap: 6px; }
+  .team-mobile-hint { display: inline; margin-left: auto; font-size: 10.5px; color: var(--muted); }
+  .team-mobile-item { border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+  .team-mobile-summary {
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  .team-mobile-summary::-webkit-details-marker { display: none; }
+  .team-mobile-summary::marker { content: ""; }
+  .team-mobile-summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .team-mobile-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .team-mobile-name .team-name { font-weight: 700; color: var(--navy); }
+  .team-mobile-name .club-line {
+    display: inline-block;
+    margin-left: 3px;
+    padding: 0 3px;
+    font-size: 8px;
+    vertical-align: 1px;
+  }
+  .team-mobile-stats { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+  .team-mobile-best .rank-badge { min-width: 20px; height: 20px; padding: 0 4px; font-size: 10px; }
+  .team-mobile-chevron { color: var(--muted-2); font-size: 12px; transition: transform 0.15s; }
+  .team-mobile-item[open] .team-mobile-chevron { transform: rotate(90deg); }
+  .team-mobile-ranks {
+    padding: 7px 10px 9px;
+    border-top: 1px dashed var(--line);
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  /* 通用表格在手机上略缩，宽表仍可横向滑动 */
+  table { font-size: 12px; }
+  thead th { padding: 8px 9px; font-size: 10px; }
+  tbody td { padding: 8px 9px; }
+  .table-wrap { -webkit-overflow-scrolling: touch; }
+  .detail-tab { padding: 5px 10px; font-size: 11px; }
+  .note { font-size: 11px; }
 
   /* 球队 × 赛季：手机上压缩成一屏可见的 10 列矩阵，不再横向滑动 */
   .matrix-card { padding: 14px 10px; }
@@ -696,6 +804,15 @@ tbody tr:last-child td { border-bottom: 0; }
   }
   .matrix .absent-mark { width: 8px; height: 8px; }
   .matrix .cell-empty { font-size: 8.5px; }
+}
+
+@media (max-width: 360px) {
+  .timeline-card { padding: 9px 8px; }
+  .timeline-champion { font-size: 14px; }
+  .timeline-sub { font-size: 9.5px; }
+  .kpi strong { font-size: 18px; }
+  .team-mobile-name { font-size: 12px; }
+  .team-mobile-stats { font-size: 10px; }
 }
 
 @media print {
@@ -818,6 +935,7 @@ tbody tr:last-child td { border-bottom: 0; }
         <button id="team-sort" class="sort-btn" type="button" aria-pressed="false"
                 title="只对球队汇总表按参赛赛季排序；再次点击切换升序/降序">按参赛赛季排序</button>
         <button id="team-sort-reset" class="sort-reset" type="button" hidden>恢复默认</button>
+        <span class="team-mobile-hint">点球队可展开赛季名次</span>
       </div>
       <div id="team-table"></div>
     </div>
@@ -1324,6 +1442,17 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     `;
   }
 
+  function teamRankParts(team) {
+    const rankParts = [];
+    for (const seasonId of team.seasons) {
+      const finalRank = team.final_ranks ? team.final_ranks[seasonId] : null;
+      const regular = team.regular_ranks ? team.regular_ranks[seasonId] : null;
+      if (finalRank) rankParts.push(`${seasonId} 最终${finalRank}`);
+      else if (regular) rankParts.push(`${seasonId} ${regular}`);
+    }
+    return rankParts;
+  }
+
   function renderTeamTable() {
     const container = $("#team-table");
     const teams = sortedTeams();
@@ -1332,13 +1461,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
       return;
     }
     const rows = teams.map((team) => {
-      const rankParts = [];
-      for (const seasonId of team.seasons) {
-        const finalRank = team.final_ranks ? team.final_ranks[seasonId] : null;
-        const regular = team.regular_ranks ? team.regular_ranks[seasonId] : null;
-        if (finalRank) rankParts.push(`${seasonId} 最终${finalRank}`);
-        else if (regular) rankParts.push(`${seasonId} ${regular}`);
-      }
+      const rankParts = teamRankParts(team);
       return `
         <tr>
           <td class="team-cell">${teamName(team.canonical)}${clubLine(team)}${team.aliases && team.aliases.length ? `<span class="alias-line">${esc(team.aliases.join(" / "))}</span>` : ""}</td>
@@ -1350,13 +1473,31 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
         </tr>
       `;
     }).join("");
+    const mobileItems = teams.map((team) => {
+      const rankParts = teamRankParts(team);
+      const best = team.best_final_rank && Number(team.best_final_rank) <= 4
+        ? rankBadge(team.best_final_rank)
+        : '<span class="muted">—</span>';
+      return `
+        <details class="team-mobile-item">
+          <summary class="team-mobile-summary">
+            <span class="team-mobile-name">${teamName(team.canonical)}${clubLine(team)}</span>
+            <span class="team-mobile-stats">${esc(team.season_count)}季 · ${esc(team.championships)}冠 · ${esc(team.runner_ups)}亚</span>
+            <span class="team-mobile-best" title="最好名次">${best}</span>
+            <span class="team-mobile-chevron" aria-hidden="true">›</span>
+          </summary>
+          <div class="team-mobile-ranks">${rankParts.length ? esc(rankParts.join(" · ")) : "暂无赛季名次"}</div>
+        </details>
+      `;
+    }).join("");
     container.innerHTML = `
-      <div class="table-wrap">
+      <div class="table-wrap team-table-wrap">
         <table class="team-table">
           <thead><tr><th>球队</th><th class="num">参赛赛季</th><th class="num">冠军</th><th class="num">亚军</th><th class="num" title="只显示四强（1–4名）；四强外显示 —">最好名次</th><th>赛季名次</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
+      <div class="team-mobile-list">${mobileItems}</div>
     `;
   }
 

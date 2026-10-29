@@ -1051,12 +1051,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     return `<span class="rank-badge ${cls}">${esc(rank)}</span>`;
   }
 
-  function confBadge(confidence) {
-    const level = confidence === "high" ? "high" : confidence === "medium" ? "medium" : "";
-    const label = confidence === "high" ? "高" : confidence === "medium" ? "中" : "待核对";
-    return `<span class="conf ${level}">${label}</span>`;
-  }
-
   function aliasNote(team) {
     const item = (data.aliases || []).find((alias) => alias.canonical === team);
     return item ? (item.note || "") : "";
@@ -1233,8 +1227,6 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
         <td>${rankBadge(finalFour ? 4 : row.rank, finalFour)}${finalFour ? '<span class="tag-four">四强</span>' : ""}</td>
         <td>${teamName(row.team)}</td>
         <td class="muted small">${esc(row.basis || "")}</td>
-        <td>${confBadge(row.confidence)}</td>
-        <td class="muted small">${esc(row.note || "")}</td>
       </tr>
     `;
     }).join("");
@@ -1242,7 +1234,7 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
     return `
       <div class="table-wrap">
         <table>
-          <thead><tr><th>名次</th><th>球队</th><th>依据</th><th>置信度</th><th>备注</th></tr></thead>
+          <thead><tr><th>名次</th><th>球队</th><th>依据</th></tr></thead>
           <tbody>${table}</tbody>
         </table>
       </div>
@@ -1273,14 +1265,13 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
         <td class="num"><b>${esc(row.points ?? "—")}</b></td>
         <td class="num">${esc(row.avg || "—")}</td>
         <td class="num">${esc(row.obp || "—")}</td>
-        <td>${confBadge(row.confidence)} <span class="muted small">${esc(row.note || "")}</span></td>
       </tr>
     `).join("");
     const html = `
       ${groupTabs}
       <div class="table-wrap">
         <table>
-          <thead><tr><th>名次</th><th>球队</th><th class="num">赛</th><th class="num">胜</th><th class="num">负</th><th class="num">平</th><th class="num">积分</th><th class="num">安打率</th><th class="num">上垒率</th><th>备注</th></tr></thead>
+          <thead><tr><th>名次</th><th>球队</th><th class="num">赛</th><th class="num">胜</th><th class="num">负</th><th class="num">平</th><th class="num">积分</th><th class="num">安打率</th><th class="num">上垒率</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
